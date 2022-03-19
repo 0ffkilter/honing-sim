@@ -3,10 +3,10 @@ import numpy
 
 
 # Gold Costs
-base_cost = 3600
+base_cost = 3000
 
 costs = {
-    "grace" : 100,
+    "grace" : 120,
     "blessing" : 365,
     "protection": 790
 }
@@ -48,27 +48,27 @@ def sim(base_cost, base_percent, artisan_base, pity, graces=0, blessings=0, prot
         if current_artisans >= 100:
             return total_cost + base_cost
 
-        next_artisans = current_artisans + artisan_base + get_values(artisan_increase, graces, blessings, protections)
+        # next_artisans = current_artisans + artisan_base + get_values(artisan_increase, graces, blessings, protections)
 
-        while next_artisans > 100:
-            if blessings > 0 and (next_artisans - artisan_increase["blessing"] > 100):
-                blessings = blessings - 1
-                next_artisans = next_artisans - artisan_increase["blessing"]
-            else:
-                if protections > 0 and (next_artisans - artisan_increase["protection"] > 100):
-                    blessings = blessings - 1
-                    next_artisans = next_artisans - artisan_increase["protection"]
-                else:
-                    if protections > 0 and (next_artisans - artisan_increase["grace"] > 100):
-                        graces = graces - 1
-                        next_artisans = next_artisans - artisan_increase["grace"]
-                    else:
-                        break
-
-
-        current_artisans = current_artisans + artisan_base + get_values(artisan_increase, graces, blessings, protections)
+        # while next_artisans > 100:
+        #     if blessings > 0 and (next_artisans - artisan_increase["blessing"] > 100):
+        #         blessings = blessings - 1
+        #         next_artisans = next_artisans - artisan_increase["blessing"]
+        #     else:
+        #         if protections > 0 and (next_artisans - artisan_increase["protection"] > 100):
+        #             blessings = blessings - 1
+        #             next_artisans = next_artisans - artisan_increase["protection"]
+        #         else:
+        #             if protections > 0 and (next_artisans - artisan_increase["grace"] > 100):
+        #                 graces = graces - 1
+        #                 next_artisans = next_artisans - artisan_increase["grace"]
+        #             else:
+        #                 break
 
         success_chance = success_chance + get_values(increase, graces, blessings, protections)
+        current_artisans = current_artisans + success_chance * 0.465
+
+
         total_cost = total_cost + base_cost + get_values(costs, graces, blessings, protections)
         #print(success_chance, current_artisans, total_cost)
 
@@ -83,11 +83,11 @@ def sim(base_cost, base_percent, artisan_base, pity, graces=0, blessings=0, prot
 trials = [
     [0,0,0], # No solars
     [24,0,0], # all graces
-    [24.,0,3], # all grace, all protection
+    [24,0,3], # all grace, all protection
     [24,12,3] #everything
 ]
 
-sim_number = 10000
+sim_number = 100000
 
 for t in trials:
     trial = [sim(base_cost, base_percent, artisans, pity, t[0], t[1], t[2]) for x in range(sim_number)]
@@ -99,6 +99,6 @@ for i in range(25):
     trial = [sim(base_cost, base_percent, artisans, pity, i, 0, 0) for x in range(sim_number)]
     mean = numpy.average(trial)
     median = numpy.median(trial)
-    print(i, mean, median, mean - l_mean, median - l_median)
+    print(i, mean, median)#, mean - l_mean, median - l_median)
     l_mean = mean
     l_median = median
